@@ -78,52 +78,7 @@ class EmbeddingLSB:
         except Exception as e:
             print(f"An error occurred: {e}")
 
-        """
-        bit_index = 0
-        for i in range(len(audio_data)):
-            if bit_index < len(self.secret_bits):
-                audio_data[i] = (audio_data[i] & 0xFE) | int(self.secret_bits[bit_index])
-                bit_index += 1
-            else:
-                break
-        self.audio = (audio_data, params)
-
-    def embed_bits_xor(self):
-        audio_data, params = self.audio
-        bit_index = 0
-        for i in range(len(audio_data)):
-            if bit_index < len(self.secret_bits):
-                audio_data[i] = audio_data[i] ^ int(self.secret_bits[bit_index])
-                bit_index += 1
-            else:
-                break
-        self.audio = (audio_data, params)
-
-    def embed_bits_xor_neg(self):
-        audio_data, params = self.audio
-        bit_index = 0
-        for i in range(len(audio_data)):
-            if bit_index < len(self.secret_bits):
-                audio_data[i] = audio_data[i] ^ int(self.secret_bits[bit_index])
-                audio_data[i] = ~audio_data[i] & 0xFF
-                bit_index += 1
-            else:
-                break
-        self.audio = (audio_data, params)
-
-    def embed(self):
-        if self.algorithm_variant == 'replace':
-            self.embed_bits_replace()
-        elif self.algorithm_variant == 'xor':
-            self.embed_bits_xor()
-        elif self.algorithm_variant == 'xor_neg':
-            self.embed_bits_xor_neg()
-        else:
-            raise ValueError(f"Unknown algorithm variant: {self.algorithm_variant}")
-        print(f"Algorithm '{self.algorithm_variant}' successes!")
-"""
-
-
+       
 if __name__ == "__main__":
     input_file = "input_audio.wav"
     mono_file = "mono_audio.wav"
