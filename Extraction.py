@@ -1,39 +1,36 @@
-import wave
-import numpy as np
+from typing import Callable
+from process import Optional
+from process import read_audio
 
 
-def read_audio(file_audio):
-    try:
-        with wave.open(file_audio, 'rb') as wav:
-            params = wav.getparams()
-            frames = wav.readframes(params.nframes)
-            samples = np.frombuffer(frames, dtype=np.int16)
-        return samples, params
-    except Exception as e:
-        print(f"Error reading the wave file: {e}")
-        return None, None
+class ExtractorLSB:
+    def __init__(self, audio_file: str) -> None:
+        self.samples, _ = read_audio(audio_file)
+        if self.samples is None:
+            raise ValueError("Failed to read audio samples.")
 
+    def extract_lsb(self, length: int, method: str) -> str:
+        match method:
+            case 'replace':
+                extract_func: Callable[[int], int] = lambda sample: sample & 1
+            case 'xor':
+                extract_func = lambda sample: sample & 1
+            case 'negate_xor':
+                extract_func = lambda sample: ~sample & 1
+            case _:
+                raise ValueError(f"Unknown method: {method}")
 
-def extract_lsb(samples, length, methods):
-    watermark = []
-    for i in range(length):
-        if methods == 'replace':
-            bit = samples[i] & 1
-        elif methods == 'xor':
-            bit = samples[i] & 1
-        elif methods == 'negate_xor':
-            bit = samples[i] & 1
-            bit = ~bit & 1
-        watermark.append(bit)
-    return ''.join(map(str, watermark))
+        watermark = []
+        for i in range(length):
+            bit = extract_func(self.samples[i])
+            watermark.append(bit)
+        return ''.join(map(str, watermark))
 
-
-def extract_watermark(file, length, method):
-    samples, _ = read_audio(file)
-    if samples is not None:
-        return extract_lsb(samples, length, method)
-    else:
-        return None
+    def extract_watermark(self, length: int, method: str) -> Optional[str]:
+        if self.samples is not None:
+            return self.extract_lsb(length, method)
+        else:
+            return None
 
 
 if __name__ == "__main__":
@@ -42,9 +39,10 @@ if __name__ == "__main__":
         ('output_xor.wav', 'xor'),
         ('output_negate_xor.wav', 'negate_xor')
     ]
-    watermark_length = 12
+    watermark_length = 84
     for file, method in files_methods:
-        extracted_watermark = extract_watermark(file, watermark_length, method)
+        extractor = ExtractorLSB(file)
+        extracted_watermark = extractor.extract_watermark(watermark_length, method)
         if extracted_watermark is not None:
             print(f'Extracted watermark ({method}): {extracted_watermark}')
         else:
