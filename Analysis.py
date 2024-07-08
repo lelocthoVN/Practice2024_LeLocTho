@@ -1,26 +1,10 @@
-import wave
 import numpy as np
 import matplotlib.pyplot as plt
+from process import read_audio
+from typing import List
 
 
-def read_audio(file):
-    """
-    Reads audio data from a .wav file.
-    :param file: Path to the .wav file.
-    :return: Tuple containing samples as a numpy array and wave file parameters.
-    """
-    try:
-        with wave.open(file, 'rb') as wav:
-            params = wav.getparams()
-            frames = wav.readframes(params.nframes)
-            samples = np.frombuffer(frames, dtype=np.int16)
-        return samples, params
-    except Exception as e:
-        print(f"Error reading the wave file: {e}")
-        return None, None
-
-
-def plot_histogram(file, ax, title):
+def plot_histogram(file: str, ax: plt.Axes, title: str) -> None:
     """
     Plots the histogram of audio samples.
     :param file: Path to the audio file.
@@ -38,7 +22,7 @@ def plot_histogram(file, ax, title):
         print(f"Could not plot histogram for {file}.")
 
 
-def compare_histograms(original_file, stego_files, stego_titles):
+def compare_histograms(original_file: str, stego_files: List[str], stego_titles: List[str]) -> None:
     """
     Compares histograms of the original audio file and stego audio files.
     :param original_file: Path to the original audio file.
@@ -55,7 +39,8 @@ def compare_histograms(original_file, stego_files, stego_titles):
     plt.show()
 
 
-def plot_histogram_difference(original_hist, stego_hist, bins, ax, title):
+def plot_histogram_difference(original_hist: np.ndarray, stego_hist: np.ndarray,
+                              bins: np.ndarray, ax: plt.Axes, title: str) -> None:
     """
     Plots the difference between the histograms of original and stego audio files.
     :param original_hist: Histogram of the original audio samples.
@@ -64,13 +49,8 @@ def plot_histogram_difference(original_hist, stego_hist, bins, ax, title):
     :param ax: Matplotlib axis to plot on.
     :param title: Title of the histogram difference plot.
     :return: None
+    """
 
-    difference = stego_hist - original_hist
-    ax.bar(bins[:-1], difference, width=1, edgecolor='Red')
-    ax.set_title(title)
-    ax.set_xlabel('Sample Value')
-    ax.set_ylabel('Frequency Difference')
-"""
     difference = stego_hist - original_hist
     ax.bar(bins[:-1], difference, width=1, edgecolor='Red', color='blue', alpha=0.9)
     ax.set_title(title)
@@ -78,7 +58,7 @@ def plot_histogram_difference(original_hist, stego_hist, bins, ax, title):
     ax.set_ylabel('Frequency Difference')
 
 
-def compare_histogram_differences(original_file, stego_files, stego_titles):
+def compare_histogram_differences(original_file: str, stego_files: List[str], stego_titles: List[str]) -> None:
     """
     Compares the histogram differences between the original audio file and stego audio files.
     :param original_file: Path to the original audio file.
